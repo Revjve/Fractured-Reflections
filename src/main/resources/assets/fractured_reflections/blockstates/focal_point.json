@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "lit=false": {
+      "model": "fractured_reflections:block/focal_point"
+    },
+    "lit=true": {
+      "model": "fractured_reflections:block/focal_point_lit"
+    }
+  }
+}

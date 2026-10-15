@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "fractured_reflections:molten_mirror_glass"
+    },
+    {
+      "item": "fractured_reflections:molten_mirror_glass"
+    },
+    {
+      "item": "fractured_reflections:molten_mirror_glass"
+    }
+  ],
+  "result": {
+    "item": "fractured_reflections:pure_mirror"
+  }
+}

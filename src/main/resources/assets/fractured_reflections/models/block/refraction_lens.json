@@ -1,0 +1,9 @@
+{
+  "parent": "fractured_reflections:block/refraction_lens_template",
+  "textures": {
+    "particle": "minecraft:block/light_blue_stained_glass",
+    "base": "minecraft:block/polished_deepslate",
+    "core": "minecraft:block/light_blue_stained_glass",
+    "nozzle": "minecraft:block/gold_block"
+  }
+}

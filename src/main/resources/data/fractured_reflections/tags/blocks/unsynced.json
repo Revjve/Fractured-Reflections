@@ -1,0 +1,11 @@
+{
+  "replace": false,
+  "values": [
+    "fractured_reflections:ritual_altar",
+    "fractured_reflections:refraction_lens",
+    "fractured_reflections:lumen_prism",
+    "fractured_reflections:focal_point",
+    "fractured_reflections:puzzle_chest",
+    "fractured_reflections:glowing_cracked_mirror"
+  ]
+}

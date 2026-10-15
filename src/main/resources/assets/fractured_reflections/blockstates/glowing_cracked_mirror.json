@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "fractured_reflections:block/glowing_cracked_mirror"
+    },
+    "facing=east": {
+      "model": "fractured_reflections:block/glowing_cracked_mirror",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "fractured_reflections:block/glowing_cracked_mirror",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "fractured_reflections:block/glowing_cracked_mirror",
+      "y": 270
+    }
+  }
+}

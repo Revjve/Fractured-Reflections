@@ -1,0 +1,19 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.revjve.fractured.mixin.client",
+  "compatibilityLevel": "JAVA_17",
+  "client": [
+    "AbstractClientPlayerEntityMixin",
+    "ClientPlayerEntityMixin",
+    "GameRendererMixin",
+    "JsonEffectShaderProgramMixin",
+    "PlayerEntityDisplayNameMixin",
+    "PlayerEntityRendererMixin",
+    "PostEffectProcessorAccessor",
+    "SourceMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

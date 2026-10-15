@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:smelting",
+  "category": "misc",
+  "ingredient": {
+    "item": "fractured_reflections:cursed_glass_fragment"
+  },
+  "result": "fractured_reflections:molten_mirror_glass",
+  "experience": 0.1,
+  "cookingtime": 100
+}

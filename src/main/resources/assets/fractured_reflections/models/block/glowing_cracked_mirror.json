@@ -1,0 +1,9 @@
+{
+  "parent": "fractured_reflections:block/mirror_template",
+  "textures": {
+    "particle": "minecraft:block/light_blue_stained_glass",
+    "back": "minecraft:block/blue_ice",
+    "frame": "minecraft:block/crying_obsidian",
+    "glass": "minecraft:block/light_blue_stained_glass"
+  }
+}

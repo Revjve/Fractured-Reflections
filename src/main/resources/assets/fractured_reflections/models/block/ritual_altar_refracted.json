@@ -1,0 +1,10 @@
+{
+  "parent": "fractured_reflections:block/ritual_altar_template",
+  "textures": {
+    "particle": "minecraft:block/enchanting_table_side",
+    "base": "minecraft:block/polished_blackstone",
+    "side": "minecraft:block/crying_obsidian",
+    "top": "minecraft:block/enchanting_table_top",
+    "bottom": "minecraft:block/enchanting_table_bottom"
+  }
+}

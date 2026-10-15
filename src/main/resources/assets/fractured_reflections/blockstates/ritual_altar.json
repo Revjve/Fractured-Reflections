@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "stage=0": {
+      "model": "fractured_reflections:block/ritual_altar_dormant"
+    },
+    "stage=1": {
+      "model": "fractured_reflections:block/ritual_altar_refracted"
+    },
+    "stage=2": {
+      "model": "fractured_reflections:block/ritual_altar_awakened"
+    },
+    "stage=3": {
+      "model": "fractured_reflections:block/ritual_altar_cleansed"
+    }
+  }
+}

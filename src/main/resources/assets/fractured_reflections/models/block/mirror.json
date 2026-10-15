@@ -1,0 +1,9 @@
+{
+  "parent": "fractured_reflections:block/mirror_template",
+  "textures": {
+    "particle": "minecraft:block/glass",
+    "back": "minecraft:block/dark_oak_planks",
+    "frame": "minecraft:block/gold_block",
+    "glass": "minecraft:block/glass"
+  }
+}

@@ -1,0 +1,295 @@
+{
+  "heartbeat": {
+    "subtitle": "subtitles.fractured_reflections.heartbeat",
+    "sounds": [
+      {
+        "name": "minecraft:entity.warden.heartbeat",
+        "type": "event"
+      }
+    ]
+  },
+  "sting": {
+    "subtitle": "subtitles.fractured_reflections.sting",
+    "sounds": [
+      {
+        "name": "minecraft:entity.elder_guardian.curse",
+        "type": "event",
+        "volume": 0.8
+      },
+      {
+        "name": "minecraft:entity.ghast.scream",
+        "type": "event",
+        "volume": 0.5,
+        "pitch": 0.6
+      },
+      {
+        "name": "minecraft:entity.enderman.stare",
+        "type": "event",
+        "volume": 0.7
+      }
+    ]
+  },
+  "glass_shatter": {
+    "subtitle": "subtitles.fractured_reflections.glass_shatter",
+    "sounds": [
+      {
+        "name": "minecraft:block.glass.break",
+        "type": "event"
+      }
+    ]
+  },
+  "whisper": {
+    "subtitle": "subtitles.fractured_reflections.whisper",
+    "sounds": [
+      {
+        "name": "minecraft:ambient.cave",
+        "type": "event"
+      },
+      {
+        "name": "minecraft:ambient.soul_sand_valley.mood",
+        "type": "event",
+        "volume": 0.8
+      }
+    ]
+  },
+  "fake_footstep": {
+    "subtitle": "subtitles.fractured_reflections.fake_footstep",
+    "sounds": [
+      {
+        "name": "minecraft:block.wood.step",
+        "type": "event"
+      }
+    ]
+  },
+  "mirror_ambient": {
+    "subtitle": "subtitles.fractured_reflections.mirror_ambient",
+    "sounds": [
+      {
+        "name": "minecraft:block.amethyst_block.chime",
+        "type": "event"
+      },
+      {
+        "name": "minecraft:block.beacon.ambient",
+        "type": "event",
+        "volume": 0.6
+      }
+    ]
+  },
+  "mirror_phase": {
+    "subtitle": "subtitles.fractured_reflections.mirror_phase",
+    "sounds": [
+      {
+        "name": "minecraft:entity.illusioner.mirror_move",
+        "type": "event"
+      }
+    ]
+  },
+  "mirror_crawl": {
+    "subtitle": "subtitles.fractured_reflections.mirror_crawl",
+    "sounds": [
+      {
+        "name": "minecraft:entity.warden.emerge",
+        "type": "event",
+        "volume": 0.7,
+        "pitch": 1.4
+      }
+    ]
+  },
+  "portal_open": {
+    "subtitle": "subtitles.fractured_reflections.portal_open",
+    "sounds": [
+      {
+        "name": "minecraft:block.end_portal.spawn",
+        "type": "event",
+        "volume": 0.5
+      }
+    ]
+  },
+  "portal_close": {
+    "subtitle": "subtitles.fractured_reflections.portal_close",
+    "sounds": [
+      {
+        "name": "minecraft:block.beacon.deactivate",
+        "type": "event"
+      }
+    ]
+  },
+  "dimension_drag": {
+    "subtitle": "subtitles.fractured_reflections.dimension_drag",
+    "sounds": [
+      {
+        "name": "minecraft:entity.illusioner.prepare_mirror",
+        "type": "event"
+      },
+      {
+        "name": "minecraft:entity.warden.sonic_charge",
+        "type": "event",
+        "volume": 0.8
+      }
+    ]
+  },
+  "escape": {
+    "subtitle": "subtitles.fractured_reflections.escape",
+    "sounds": [
+      {
+        "name": "minecraft:block.beacon.power_select",
+        "type": "event"
+      }
+    ]
+  },
+  "shapeshift": {
+    "subtitle": "subtitles.fractured_reflections.shapeshift",
+    "sounds": [
+      {
+        "name": "minecraft:entity.illusioner.cast_spell",
+        "type": "event"
+      }
+    ]
+  },
+  "echo_spawn": {
+    "subtitle": "subtitles.fractured_reflections.echo_spawn",
+    "sounds": [
+      {
+        "name": "minecraft:entity.illusioner.mirror_move",
+        "type": "event",
+        "pitch": 1.3
+      }
+    ]
+  },
+  "echo_shatter": {
+    "subtitle": "subtitles.fractured_reflections.echo_shatter",
+    "sounds": [
+      {
+        "name": "minecraft:block.glass.break",
+        "type": "event",
+        "pitch": 0.8
+      }
+    ]
+  },
+  "blackout": {
+    "subtitle": "subtitles.fractured_reflections.blackout",
+    "sounds": [
+      {
+        "name": "minecraft:entity.warden.roar",
+        "type": "event",
+        "volume": 0.6,
+        "pitch": 1.3
+      }
+    ]
+  },
+  "lights_reform": {
+    "subtitle": "subtitles.fractured_reflections.lights_reform",
+    "sounds": [
+      {
+        "name": "minecraft:block.amethyst_cluster.place",
+        "type": "event"
+      }
+    ]
+  },
+  "flashlight_click": {
+    "subtitle": "subtitles.fractured_reflections.flashlight_click",
+    "sounds": [
+      {
+        "name": "minecraft:ui.button.click",
+        "type": "event",
+        "volume": 0.4
+      }
+    ]
+  },
+  "flashlight_flicker": {
+    "subtitle": "subtitles.fractured_reflections.flashlight_flicker",
+    "sounds": [
+      {
+        "name": "minecraft:block.redstone_torch.burnout",
+        "type": "event"
+      }
+    ]
+  },
+  "lens_rotate": {
+    "subtitle": "subtitles.fractured_reflections.lens_rotate",
+    "sounds": [
+      {
+        "name": "minecraft:item.spyglass.use",
+        "type": "event"
+      }
+    ]
+  },
+  "refraction_lit": {
+    "subtitle": "subtitles.fractured_reflections.refraction_lit",
+    "sounds": [
+      {
+        "name": "minecraft:block.beacon.activate",
+        "type": "event"
+      }
+    ]
+  },
+  "pure_mirror_seated": {
+    "subtitle": "subtitles.fractured_reflections.pure_mirror_seated",
+    "sounds": [
+      {
+        "name": "minecraft:block.end_portal_frame.fill",
+        "type": "event"
+      }
+    ]
+  },
+  "cleansing_cue": {
+    "subtitle": "subtitles.fractured_reflections.cleansing_cue",
+    "sounds": [
+      {
+        "name": "minecraft:block.bell.use",
+        "type": "event"
+      },
+      {
+        "name": "minecraft:block.bell.resonate",
+        "type": "event",
+        "volume": 0.7
+      }
+    ]
+  },
+  "altar_cleansed": {
+    "subtitle": "subtitles.fractured_reflections.altar_cleansed",
+    "sounds": [
+      {
+        "name": "minecraft:block.beacon.power_select",
+        "type": "event",
+        "pitch": 0.7
+      }
+    ]
+  },
+  "banishment": {
+    "subtitle": "subtitles.fractured_reflections.banishment",
+    "sounds": [
+      {
+        "name": "minecraft:ui.toast.challenge_complete",
+        "type": "event"
+      }
+    ]
+  },
+  "puzzle_fail": {
+    "subtitle": "subtitles.fractured_reflections.puzzle_fail",
+    "sounds": [
+      {
+        "name": "minecraft:block.chest.locked",
+        "type": "event"
+      }
+    ]
+  },
+  "puzzle_solved": {
+    "subtitle": "subtitles.fractured_reflections.puzzle_solved",
+    "sounds": [
+      {
+        "name": "minecraft:block.chest.open",
+        "type": "event"
+      }
+    ]
+  },
+  "match_start": {
+    "subtitle": "subtitles.fractured_reflections.match_start",
+    "sounds": [
+      {
+        "name": "minecraft:entity.elder_guardian.curse",
+        "type": "event"
+      }
+    ]
+  }
+}

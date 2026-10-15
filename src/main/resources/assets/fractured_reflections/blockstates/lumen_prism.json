@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "fractured_reflections:block/lumen_prism"
+    },
+    "facing=east": {
+      "model": "fractured_reflections:block/lumen_prism",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "fractured_reflections:block/lumen_prism",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "fractured_reflections:block/lumen_prism",
+      "y": 270
+    }
+  }
+}

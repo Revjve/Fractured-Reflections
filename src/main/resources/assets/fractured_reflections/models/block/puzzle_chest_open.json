@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "top": "minecraft:block/barrel_top",
+    "front": "minecraft:block/barrel_top_open",
+    "side": "minecraft:block/dark_oak_planks"
+  }
+}

@@ -1,0 +1,104 @@
+plugins {
+    id 'fabric-loom' version '1.7-SNAPSHOT'
+    id 'maven-publish'
+}
+
+version = project.mod_version
+group = project.maven_group
+
+base {
+    archivesName = project.archives_base_name
+}
+
+repositories {
+    // LambDynamicLights, Simple Voice Chat (full mod) and Immersive Portals (bundled jar)
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = 'Modrinth'
+                url = 'https://api.modrinth.com/maven'
+            }
+        }
+        filter {
+            includeGroup 'maven.modrinth'
+        }
+    }
+    // Simple Voice Chat API
+    maven {
+        name = 'Henkelmax'
+        url = 'https://maven.maxhenkel.de/repository/public'
+        content {
+            includeGroup 'de.maxhenkel.voicechat'
+        }
+    }
+}
+
+loom {
+    runs {
+        client {
+            programArgs '--username', 'Survivor'
+        }
+        // A second client to test 1v1 locally: ./gradlew runClient2
+        client2 {
+            inherit client
+            name 'Client 2'
+            programArgs '--username', 'Fractured'
+            runDir 'run2'
+        }
+    }
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+
+    // Simple Voice Chat — plugin API (provided at runtime by the voicechat mod)
+    compileOnly "de.maxhenkel.voicechat:voicechat-api:${project.voicechat_api_version}"
+    modLocalRuntime "maven.modrinth:simple-voice-chat:${project.voicechat_version}"
+
+    // LambDynamicLights — dynamic light handler API for the flashlight
+    modCompileOnly "maven.modrinth:lambdynamiclights:${project.lambdynamiclights_version}"
+    modLocalRuntime "maven.modrinth:lambdynamiclights:${project.lambdynamiclights_version}"
+
+    // Immersive Portals — bound through reflection (see ImmersivePortalsCompat) so the
+    // mod compiles and runs with or without it, across IP API revisions.
+    if (project.use_immersive_portals.toBoolean()) {
+        modLocalRuntime "maven.modrinth:immersiveportals:${project.immersive_portals_version}"
+    }
+}
+
+processResources {
+    inputs.property 'version', project.version
+
+    filesMatching('fabric.mod.json') {
+        expand 'version': project.version
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    it.options.release = 17
+    it.options.encoding = 'UTF-8'
+}
+
+java {
+    withSourcesJar()
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+jar {
+    from('LICENSE') {
+        rename { "${it}_${project.base.archivesName.get()}" }
+    }
+}
+
+publishing {
+    publications {
+        create('mavenJava', MavenPublication) {
+            artifactId = project.archives_base_name
+            from components.java
+        }
+    }
+}
