@@ -1,0 +1,86 @@
+{
+  "targets": [
+    "bright",
+    "blurA",
+    "blurB"
+  ],
+  "passes": [
+    {
+      "name": "fractured_reflections:bright",
+      "intarget": "minecraft:main",
+      "outtarget": "bright"
+    },
+    {
+      "name": "fractured_reflections:bloom_blur",
+      "intarget": "bright",
+      "outtarget": "blurA",
+      "uniforms": [
+        {
+          "name": "BlurDir",
+          "values": [
+            1.0,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "name": "fractured_reflections:bloom_blur",
+      "intarget": "blurA",
+      "outtarget": "blurB",
+      "uniforms": [
+        {
+          "name": "BlurDir",
+          "values": [
+            0.0,
+            1.0
+          ]
+        }
+      ]
+    },
+    {
+      "name": "fractured_reflections:bloom_blur",
+      "intarget": "blurB",
+      "outtarget": "blurA",
+      "uniforms": [
+        {
+          "name": "BlurDir",
+          "values": [
+            3.0,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "name": "fractured_reflections:bloom_blur",
+      "intarget": "blurA",
+      "outtarget": "blurB",
+      "uniforms": [
+        {
+          "name": "BlurDir",
+          "values": [
+            0.0,
+            3.0
+          ]
+        }
+      ]
+    },
+    {
+      "name": "fractured_reflections:mirror_grade",
+      "intarget": "minecraft:main",
+      "outtarget": "bright",
+      "auxtargets": [
+        {
+          "name": "BloomSampler",
+          "id": "blurB"
+        }
+      ]
+    },
+    {
+      "name": "blit",
+      "intarget": "bright",
+      "outtarget": "minecraft:main"
+    }
+  ]
+}

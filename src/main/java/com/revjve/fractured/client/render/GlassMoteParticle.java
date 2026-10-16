@@ -1,5 +1,6 @@
 package com.revjve.fractured.client.render;
 
+import com.revjve.fractured.registry.ModDimensions;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.particle.Particle;
@@ -11,7 +12,7 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.particle.DefaultParticleType;
 import net.minecraft.util.math.MathHelper;
 
-/** A tiny twinkling flake of glass drifting through the Mirror Dimension (sprites from vanilla's spark set). */
+/** A tiny twinkling flake of glass — a smouldering ember inside the Mirror Dimension (sprites from vanilla's spark set). */
 @Environment(EnvType.CLIENT)
 public class GlassMoteParticle extends SpriteBillboardParticle {
     private final float twinklePhase;
@@ -27,7 +28,13 @@ public class GlassMoteParticle extends SpriteBillboardParticle {
         this.maxAge = 80 + this.random.nextInt(100);
         this.scale = 0.03f + this.random.nextFloat() * 0.05f;
         this.twinklePhase = this.random.nextFloat() * MathHelper.TAU;
-        setColor(0.82f, 0.9f, 1.0f);
+        if (world.getRegistryKey() == ModDimensions.MIRROR) {
+            // in the Mirror Dimension the glass dust smoulders like embers
+            float heat = this.random.nextFloat();
+            setColor(1.0f, 0.12f + heat * 0.35f, 0.06f + heat * 0.1f);
+        } else {
+            setColor(0.82f, 0.9f, 1.0f);
+        }
         setAlpha(0f);
         setSprite(sprites);
     }

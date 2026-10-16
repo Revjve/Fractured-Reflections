@@ -68,6 +68,8 @@ public final class ServerNetworking {
             buf.writeUuid(s.uuid);
             buf.writeVarInt(s.role.ordinal());
             buf.writeBoolean(s.eliminated);
+            buf.writeBoolean(match.hiding().isHiding(s.uuid));
+            buf.writeBoolean(s.panicking);
         }
         broadcast(to, FRPackets.ROLE_SYNC, buf);
     }

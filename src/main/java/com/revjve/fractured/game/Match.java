@@ -59,6 +59,7 @@ public final class Match {
     private final PortalManager portals = new PortalManager();
     private final BlackoutManager blackouts = new BlackoutManager();
     private final EscapeMirrors escapes = new EscapeMirrors();
+    private final HidingManager hiding = new HidingManager();
 
     private MatchPhase phase = MatchPhase.GENERATING;
     private int phaseTicks;
@@ -98,6 +99,7 @@ public final class Match {
     public PortalManager portals() { return portals; }
     public BlackoutManager blackouts() { return blackouts; }
     public EscapeMirrors escapes() { return escapes; }
+    public HidingManager hiding() { return hiding; }
     public Collection<PlayerState> states() { return states.values(); }
 
     @Nullable
@@ -220,7 +222,16 @@ public final class Match {
         portals.tick();
         blackouts.tick();
         escapes.tick(this);
+        hiding.tick(this);
         if (age % 2 == 0) sendGhostEchoes();
+        float threshold = FRConfig.get().glassSenseThreshold * FRConfig.get().sanityMax;
+        for (PlayerState s : states.values()) {
+            boolean panicking = s.isActiveSurvivor() && s.sanity < threshold;
+            if (panicking != s.panicking) {
+                s.panicking = panicking;
+                rolesDirty = true;
+            }
+        }
         if (age % 10 == 0 && anyCleansing()) tasksDirty = true;
 
         if (--phaseTicks <= 0) {
@@ -306,12 +317,16 @@ public final class Match {
     public void eliminate(ServerPlayerEntity player, String cause) {
         PlayerState state = states.get(player.getUuid());
         if (state == null || state.eliminated || state.role != Role.SURVIVOR) return;
+        hiding.exit(this, player, true);
         state.eliminated = true;
         state.role = Role.SPECTATOR;
         rolesDirty = true;
 
         ServerWorld world = player.getServerWorld();
         world.spawnParticles(ParticleTypes.END_ROD, player.getX(), player.getBodyY(0.5), player.getZ(), 30, 0.3, 0.6, 0.3, 0.1);
+        world.spawnParticles(new net.minecraft.particle.BlockStateParticleEffect(ParticleTypes.BLOCK,
+                        (ModDimensions.isMirror(world) ? net.minecraft.block.Blocks.RED_STAINED_GLASS : net.minecraft.block.Blocks.GLASS).getDefaultState()),
+                player.getX(), player.getBodyY(0.5), player.getZ(), 120, 0.4, 0.9, 0.4, 0.3);
         world.playSound(null, player.getBlockPos(), ModSounds.GLASS_SHATTER, SoundCategory.PLAYERS, 2.0f, 0.6f);
         player.setHealth(player.getMaxHealth());
         player.clearStatusEffects();
@@ -436,6 +451,7 @@ public final class Match {
 
     /** Immediately tears the match down and returns everyone to the overworld. */
     void cleanup() {
+        hiding.clear(this);
         portals.closeAll();
         blackouts.clear();
         escapes.clear(mirror);

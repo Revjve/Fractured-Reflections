@@ -3,6 +3,7 @@ package com.revjve.fractured.registry;
 import com.revjve.fractured.FracturedReflections;
 import com.revjve.fractured.item.BatteryItem;
 import com.revjve.fractured.item.FlashlightItem;
+import com.revjve.fractured.item.SanityTonicItem;
 import net.minecraft.block.Block;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
@@ -19,6 +20,8 @@ public final class ModItems {
     /** Furnace output; three fuse into a Pure Mirror (shapeless, works in the 2x2 inventory grid). */
     public static final Item MOLTEN_MIRROR_GLASS = register("molten_mirror_glass", new Item(new Item.Settings().maxCount(16)));
     public static final Item PURE_MIRROR = register("pure_mirror", new Item(new Item.Settings().maxCount(1).rarity(Rarity.RARE)));
+    /** Restores sanity when drunk. Found in sealed chests. */
+    public static final Item SANITY_TONIC = register("sanity_tonic", new SanityTonicItem(new Item.Settings().maxCount(4)));
 
     public static final Item MIRROR = registerBlockItem("mirror", ModBlocks.MIRROR);
     public static final Item GLOWING_CRACKED_MIRROR = registerBlockItem("glowing_cracked_mirror", ModBlocks.ESCAPE_MIRROR);
@@ -27,6 +30,7 @@ public final class ModItems {
     public static final Item LUMEN_PRISM = registerBlockItem("lumen_prism", ModBlocks.LUMEN_PRISM);
     public static final Item FOCAL_POINT = registerBlockItem("focal_point", ModBlocks.FOCAL_POINT);
     public static final Item PUZZLE_CHEST = registerBlockItem("puzzle_chest", ModBlocks.PUZZLE_CHEST);
+    public static final Item WARDROBE = registerBlockItem("wardrobe", ModBlocks.WARDROBE);
 
     private ModItems() {}
 

@@ -139,5 +139,14 @@
   "subtitles.fractured_reflections.banishment": "The Fractured is banished",
   "subtitles.fractured_reflections.puzzle_fail": "Seal shrieks",
   "subtitles.fractured_reflections.puzzle_solved": "Seal opens",
-  "subtitles.fractured_reflections.match_start": "The hunt begins"
+  "subtitles.fractured_reflections.match_start": "The hunt begins",
+  "block.fractured_reflections.wardrobe": "Wardrobe",
+  "item.fractured_reflections.sanity_tonic": "Laudanum Tonic",
+  "message.fractured_reflections.tonic": "The bitter tonic steadies your mind.",
+  "message.fractured_reflections.wardrobe_occupied": "Someone is already hiding in here.",
+  "message.fractured_reflections.wardrobe_empty": "Empty. It was here a moment ago...",
+  "message.fractured_reflections.hiding": "You hold your breath in the dark.",
+  "message.fractured_reflections.hiding_breath": "You can't hold your breath any longer.",
+  "message.fractured_reflections.found": "FOUND YOU.",
+  "hud.fractured_reflections.hiding": "Hiding — sneak to leave"
 }

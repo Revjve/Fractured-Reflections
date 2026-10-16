@@ -20,6 +20,8 @@ public final class ModItemGroups {
                         entries.add(ModItems.CURSED_GLASS_FRAGMENT);
                         entries.add(ModItems.MOLTEN_MIRROR_GLASS);
                         entries.add(ModItems.PURE_MIRROR);
+                        entries.add(ModItems.SANITY_TONIC);
+                        entries.add(ModItems.WARDROBE);
                         entries.add(ModItems.MIRROR);
                         entries.add(ModItems.GLOWING_CRACKED_MIRROR);
                         entries.add(ModItems.RITUAL_ALTAR);

@@ -32,7 +32,7 @@ public final class MirrorAtmosphere {
             double y = player.getEyeY() + (RANDOM.nextDouble() - 0.5) * 6;
             double z = player.getZ() + (RANDOM.nextDouble() - 0.5) * 16;
             client.world.addParticle(ModParticles.GLASS_MOTE, x, y, z,
-                    (RANDOM.nextDouble() - 0.5) * 0.01, -0.002 - RANDOM.nextDouble() * 0.004, (RANDOM.nextDouble() - 0.5) * 0.01);
+                    (RANDOM.nextDouble() - 0.5) * 0.012, 0.003 + RANDOM.nextDouble() * 0.008, (RANDOM.nextDouble() - 0.5) * 0.012);
         }
 
         if (ClientGameState.clientTicks >= nextDrone) {

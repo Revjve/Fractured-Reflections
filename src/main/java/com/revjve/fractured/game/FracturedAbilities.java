@@ -10,6 +10,11 @@ import com.revjve.fractured.registry.ModDimensions;
 import com.revjve.fractured.registry.ModEntities;
 import com.revjve.fractured.registry.ModSounds;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.particle.BlockStateParticleEffect;
+import net.minecraft.particle.DustParticleEffect;
+import net.minecraft.particle.ParticleTypes;
+import org.joml.Vector3f;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerAbilities;
@@ -28,6 +33,8 @@ import java.util.List;
 
 /** The Fractured's kit: Portal Transformation, Dimension Drag, Shapeshifting, Glass Echo, Shatter Blackout. */
 public final class FracturedAbilities {
+    private static final DustParticleEffect TENDRIL = new DustParticleEffect(new Vector3f(0.85f, 0.04f, 0.05f), 1.3f);
+
     private FracturedAbilities() {}
 
     // --- Per-tick upkeep -------------------------------------------------------------------
@@ -43,8 +50,9 @@ public final class FracturedAbilities {
                 endDisguise(match, player, state);
             }
         }
-        if (state.dragTarget != null && --state.dragWindup <= 0) {
-            finishDrag(match, player, state);
+        if (state.dragTarget != null) {
+            drawTendrils(match, player, state);
+            if (--state.dragWindup <= 0) finishDrag(match, player, state);
         }
         if (player.age % 20 == 0) grantFlight(player);
     }
@@ -119,6 +127,25 @@ public final class FracturedAbilities {
         return false; // cooldown starts when the drag resolves
     }
 
+    /** Glass tendrils lash from the killer's claws to the victim while the drag winds up. */
+    private static void drawTendrils(Match match, ServerPlayerEntity player, PlayerState state) {
+        ServerPlayerEntity target = match.player(state.dragTarget);
+        if (target == null || target.getWorld() != player.getWorld()) return;
+        ServerWorld world = player.getServerWorld();
+        Vec3d from = player.getPos().add(0, 1.1, 0);
+        Vec3d to = target.getPos().add(0, 1.0, 0);
+        Vec3d span = to.subtract(from);
+        int points = Math.max(4, (int) (span.length() * 4));
+        float wave = player.age * 0.6f;
+        for (int n = 0; n <= points; n++) {
+            double k = n / (double) points;
+            double wobble = Math.sin(k * Math.PI) * 0.25;
+            Vec3d p = from.add(span.multiply(k)).add(Math.sin(wave + k * 9) * wobble, Math.cos(wave + k * 7) * wobble, Math.sin(wave * 1.3 + k * 5) * wobble);
+            world.spawnParticles(TENDRIL, p.x, p.y, p.z, 1, 0.02, 0.02, 0.02, 0);
+        }
+        world.spawnParticles(new BlockStateParticleEffect(ParticleTypes.BLOCK, Blocks.GLASS.getDefaultState()), to.x, to.y, to.z, 4, 0.25, 0.4, 0.25, 0.05);
+    }
+
     private static void finishDrag(Match match, ServerPlayerEntity player, PlayerState state) {
         ServerPlayerEntity target = match.player(state.dragTarget);
         PlayerState targetState = state.dragTarget == null ? null : match.state(state.dragTarget);
@@ -134,6 +161,8 @@ public final class FracturedAbilities {
         ServerWorld mirror = match.mirrorWorld();
         target.teleport(mirror, target.getX(), target.getY(), target.getZ(), target.getYaw(), target.getPitch());
         mirror.playSound(null, target.getBlockPos(), ModSounds.STING, SoundCategory.HOSTILE, 1.5f, 0.8f);
+        mirror.spawnParticles(new BlockStateParticleEffect(ParticleTypes.BLOCK, Blocks.RED_STAINED_GLASS.getDefaultState()),
+                target.getX(), target.getBodyY(0.5), target.getZ(), 80, 0.6, 0.9, 0.6, 0.25);
         SurvivorSystems.shock(targetState, 10f);
         target.sendMessage(Text.translatable("message.fractured_reflections.dragged").formatted(Formatting.DARK_AQUA), false);
         state.startCooldown(Ability.DRAG);

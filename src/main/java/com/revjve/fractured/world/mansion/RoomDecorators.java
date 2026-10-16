@@ -7,6 +7,8 @@ import com.revjve.fractured.block.PuzzleChestBlock;
 import com.revjve.fractured.block.PuzzleChestBlockEntity;
 import com.revjve.fractured.block.PuzzleSymbol;
 import com.revjve.fractured.block.RitualAltarBlockEntity;
+import com.revjve.fractured.block.WardrobeBlock;
+import net.minecraft.block.enums.DoubleBlockHalf;
 import com.revjve.fractured.item.FlashlightItem;
 import com.revjve.fractured.registry.ModBlocks;
 import com.revjve.fractured.registry.ModItems;
@@ -65,6 +67,8 @@ final class RoomDecorators {
                 yield Blocks.POLISHED_BLACKSTONE.getDefaultState();
             }
             case CONSERVATORY -> (random.nextFloat() < 0.3f ? Blocks.MOSSY_STONE_BRICKS : Blocks.MOSS_BLOCK).getDefaultState();
+            case BALLROOM -> ((lx / 2 + lz / 2) % 2 == 0 ? Blocks.POLISHED_BLACKSTONE : Blocks.SMOOTH_QUARTZ).getDefaultState();
+            case BEDCHAMBER -> Blocks.SPRUCE_PLANKS.getDefaultState();
             default -> Blocks.DARK_OAK_PLANKS.getDefaultState();
         };
     }
@@ -176,6 +180,13 @@ final class RoomDecorators {
             if (room.type == RoomType.GALLERY && !room.ritual) placeFurnace(room, layout);
         }
 
+        // wardrobes to hide in: two in every bedchamber, now and then elsewhere
+        for (RoomContext room : rooms) {
+            if (room.type == RoomType.STAIRWELL || room.type == RoomType.FOYER) continue;
+            int count = room.type == RoomType.BEDCHAMBER ? 2 : room.random.nextFloat() < 0.3f ? 1 : 0;
+            for (int n = 0; n < count; n++) placeWardrobe(room);
+        }
+
         List<RoomContext> candidates = new ArrayList<>();
         for (RoomContext room : rooms) {
             if (!room.ritual && room.type != RoomType.STAIRWELL && room.type != RoomType.FOYER) candidates.add(room);
@@ -217,6 +228,7 @@ final class RoomDecorators {
         for (int n = 0; n < fragments; n++) loot.get(n % loot.size()).add(new ItemStack(ModItems.CURSED_GLASS_FRAGMENT));
         for (int n = 0; n < loot.size(); n++) {
             loot.get(n).add(new ItemStack(ModItems.BATTERY, n % 2 == 0 ? 2 : 1));
+            if (n % 2 == 1) loot.get(n).add(new ItemStack(ModItems.SANITY_TONIC));
             if (n == 0) loot.get(n).add(FlashlightItem.charged());
         }
         for (int n = 0; n < chestPositions.size(); n++) {
@@ -231,6 +243,14 @@ final class RoomDecorators {
                 }
             });
         }
+    }
+
+    private static void placeWardrobe(RoomContext room) {
+        RoomContext.LocalSpot spot = room.takeSpot();
+        if (spot == null) return;
+        BlockState wardrobe = ModBlocks.WARDROBE.getDefaultState().with(WardrobeBlock.FACING, spot.facing());
+        room.put(BuildPlan.Phase.DOORS, spot.lx(), 1, spot.lz(), wardrobe.with(WardrobeBlock.HALF, DoubleBlockHalf.LOWER));
+        room.put(BuildPlan.Phase.DOORS, spot.lx(), 2, spot.lz(), wardrobe.with(WardrobeBlock.HALF, DoubleBlockHalf.UPPER));
     }
 
     private static void placeFurnace(RoomContext room, MansionLayout layout) {
@@ -282,6 +302,9 @@ final class RoomDecorators {
             case CONSERVATORY -> conservatory(room);
             case FOYER -> foyer(room);
             case GALLERY -> gallery(room);
+            case CHAPEL -> chapel(room);
+            case BALLROOM -> ballroom(room);
+            case BEDCHAMBER -> bedchamber(room);
             case STAIRWELL -> { }
         }
         lights(room);
@@ -352,7 +375,7 @@ final class RoomDecorators {
                 if (roll < 0.4f) {
                     room.attach(lx, 2, lz, Blocks.SKELETON_SKULL.getDefaultState().with(SkullBlock.ROTATION, room.random.nextInt(16)));
                 } else if (roll < 0.8f) {
-                    room.attach(lx, 2, lz + 1, candle(room.random, Blocks.BLACK_CANDLE.getDefaultState()));
+                    room.attach(lx, 2, lz + 1, candle(room.random, Blocks.GRAY_CANDLE.getDefaultState()));
                 }
             }
         }
@@ -442,8 +465,78 @@ final class RoomDecorators {
             float roll = room.random.nextFloat();
             BlockState top = roll < 0.4f ? Blocks.DECORATED_POT.getDefaultState()
                     : roll < 0.7f ? Blocks.SKELETON_SKULL.getDefaultState().with(SkullBlock.ROTATION, room.random.nextInt(16))
-                    : candle(room.random, Blocks.RED_CANDLE.getDefaultState());
+                    : candle(room.random, Blocks.YELLOW_CANDLE.getDefaultState());
             room.attach(c[0], 2, c[1], top);
+        }
+    }
+
+    /** Pews facing a candle-lit pulpit at the north end, a blood-red aisle down the middle. */
+    private static void chapel(RoomContext room) {
+        for (int lz = 2; lz <= 10; lz++) {
+            if (room.free(MID, lz)) room.put(DECOR, MID, 1, lz, Blocks.RED_CARPET.getDefaultState());
+        }
+        for (int lz = 4; lz <= 9; lz += 2) {
+            for (int lx : new int[]{2, 3, 4, 8, 9, 10}) {
+                room.furnish(lx, 1, lz, Blocks.DARK_OAK_STAIRS.getDefaultState().with(StairsBlock.FACING, Direction.SOUTH));
+            }
+        }
+        room.furnish(MID, 1, 2, Blocks.LECTERN.getDefaultState().with(LecternBlock.FACING, Direction.SOUTH));
+        for (int lx : new int[]{MID - 2, MID + 2}) {
+            if (room.furnish(lx, 1, 2, Blocks.POLISHED_BLACKSTONE_WALL.getDefaultState())) {
+                room.attach(lx, 2, 2, candle(room.random, Blocks.WHITE_CANDLE.getDefaultState()).with(CandleBlock.CANDLES, 4));
+            }
+        }
+        room.attach(MID, 5, 3, Blocks.CHAIN.getDefaultState());
+        room.attach(MID, 4, 3, Blocks.SOUL_LANTERN.getDefaultState().with(LanternBlock.HANGING, true));
+    }
+
+    /** A dusty ballroom: chequered floor, columns, a great chandelier. Ballrooms get extra mirrors. */
+    private static void ballroom(RoomContext room) {
+        for (int[] c : new int[][]{{3, 3}, {9, 3}, {3, 9}, {9, 9}}) {
+            if (!room.free(c[0], c[1])) continue;
+            room.reserve(c[0], c[1]);
+            for (int ly = 1; ly <= 5; ly++) room.put(DECOR, c[0], ly, c[1], Blocks.DARK_OAK_LOG.getDefaultState());
+        }
+        room.attach(MID, 5, MID, Blocks.CHAIN.getDefaultState());
+        room.attach(MID, 4, MID, Blocks.CHAIN.getDefaultState());
+        room.attach(MID, 3, MID, Blocks.LANTERN.getDefaultState().with(LanternBlock.HANGING, true));
+        for (int[] o : new int[][]{{-2, 0}, {2, 0}, {0, -2}, {0, 2}}) {
+            room.attach(MID + o[0], 5, MID + o[1], Blocks.CHAIN.getDefaultState());
+            room.attach(MID + o[0], 4, MID + o[1], Blocks.LANTERN.getDefaultState().with(LanternBlock.HANGING, true));
+        }
+        for (int lz = 4; lz <= 8; lz += 2) {
+            room.furnish(MIN, 1, lz, Blocks.DARK_OAK_STAIRS.getDefaultState().with(StairsBlock.FACING, Direction.WEST));
+            room.furnish(MAX, 1, lz, Blocks.DARK_OAK_STAIRS.getDefaultState().with(StairsBlock.FACING, Direction.EAST));
+        }
+    }
+
+    /** A four-poster bed under a canopy, nightstands with candles. Bedchambers always hold wardrobes. */
+    private static void bedchamber(RoomContext room) {
+        int x0 = 4, x1 = 7, z0 = 3, z1 = 7;
+        boolean clear = true;
+        for (int x = x0; x <= x1; x++) for (int z = z0; z <= z1; z++) clear &= room.free(x, z);
+        if (clear) {
+            room.reserveRect(x0, z0, x1, z1);
+            for (int x = x0 + 1; x <= x1 - 1; x++) {
+                for (int z = z0 + 1; z <= z1; z++) {
+                    room.put(DECOR, x, 1, z, Blocks.WHITE_WOOL.getDefaultState());
+                    room.attach(x, 2, z, (z == z0 + 1 ? Blocks.WHITE_CARPET : Blocks.RED_CARPET).getDefaultState());
+                }
+            }
+            for (int[] p : new int[][]{{x0, z0}, {x1, z0}, {x0, z1}, {x1, z1}}) {
+                for (int ly = 1; ly <= 3; ly++) room.put(DECOR, p[0], ly, p[1], Blocks.DARK_OAK_FENCE.getDefaultState());
+            }
+            for (int x = x0; x <= x1; x++) {
+                for (int z = z0; z <= z1; z++) room.put(DECOR, x, 4, z, Blocks.DARK_OAK_SLAB.getDefaultState().with(SlabBlock.TYPE, SlabType.TOP));
+            }
+            for (int x : new int[]{x0 - 1, x1 + 1}) {
+                if (room.furnish(x, 1, z0, Blocks.BARREL.getDefaultState())) {
+                    room.attach(x, 2, z0, candle(room.random, Blocks.CANDLE.getDefaultState()));
+                }
+            }
+        }
+        for (int lx = 2; lx <= 10; lx += 4) {
+            if (room.free(lx, MAX)) room.put(DECOR, lx, 1, MAX, Blocks.RED_CARPET.getDefaultState());
         }
     }
 }

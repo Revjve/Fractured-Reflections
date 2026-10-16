@@ -30,6 +30,8 @@ public final class ClientGameState {
     public static final Map<UUID, Boolean> eliminated = new HashMap<>();
     /** fractured uuid -> disguise target uuid */
     public static final Map<UUID, UUID> disguises = new HashMap<>();
+    /** Survivors whose sanity is breaking — visible to The Fractured through walls (Glass Sense). */
+    public static final java.util.Set<UUID> panicking = new java.util.HashSet<>();
 
     // survivor HUD
     public static float stamina = 100, staminaMax = 100, sanity = 100, sanityMax = 100;
@@ -55,6 +57,12 @@ public final class ClientGameState {
     public static final Map<Integer, Crawl> crawls = new HashMap<>();
     public static float screenPulse;
     public static float dragPulse;
+    /** Shattered-glass screen overlay strength from one-shot events (decays). */
+    public static float crackPulse;
+    /** Camera shake strength (decays); see CameraShakeMixin. */
+    public static float shake;
+    /** Red edge flash on each heartbeat (decays). */
+    public static float heartbeatFlash;
     public static int clientTicks;
 
     /** 0..1 proximity of The Fractured to the local player (1 = touching), ignoring disguised killers. */
@@ -121,6 +129,7 @@ public final class ClientGameState {
         roles.clear();
         eliminated.clear();
         disguises.clear();
+        panicking.clear();
         altars.clear();
         reveals.clear();
         crawls.clear();
@@ -128,8 +137,9 @@ public final class ClientGameState {
         exhausted = trapped = false;
         disguiseTicks = dragWindup = 0;
         disguiseName = "";
-        screenPulse = dragPulse = 0;
+        screenPulse = dragPulse = crackPulse = shake = heartbeatFlash = 0;
         fracturedProximity = 0;
         RoleRegistry.setClient(List.of());
+        RoleRegistry.setClientHiding(List.of());
     }
 }

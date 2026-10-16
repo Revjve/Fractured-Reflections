@@ -30,3 +30,7 @@ hs_err_*.log
 replay_*.log
 *.hprof
 *.jfr
+
+# dev run dirs and build output
+run-server/
+dist/

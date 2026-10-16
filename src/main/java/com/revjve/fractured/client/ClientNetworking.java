@@ -34,10 +34,14 @@ public final class ClientNetworking {
             int count = buf.readVarInt();
             Map<UUID, Role> roles = new HashMap<>();
             Map<UUID, Boolean> eliminated = new HashMap<>();
+            List<UUID> hiding = new ArrayList<>();
+            List<UUID> panicking = new ArrayList<>();
             for (int n = 0; n < count; n++) {
                 UUID uuid = buf.readUuid();
                 roles.put(uuid, Role.byOrdinal(buf.readVarInt()));
                 eliminated.put(uuid, buf.readBoolean());
+                if (buf.readBoolean()) hiding.add(uuid);
+                if (buf.readBoolean()) panicking.add(uuid);
             }
             client.execute(() -> {
                 if (phase == MatchPhase.IDLE) {
@@ -56,6 +60,9 @@ public final class ClientNetworking {
                     if (role == Role.FRACTURED) fractured.add(uuid);
                 });
                 RoleRegistry.setClient(fractured);
+                RoleRegistry.setClientHiding(hiding);
+                ClientGameState.panicking.clear();
+                ClientGameState.panicking.addAll(panicking);
             });
         });
 
@@ -125,7 +132,14 @@ public final class ClientNetworking {
             int entityId = buf.readVarInt();
             Direction facing = Direction.fromHorizontal(buf.readVarInt());
             int duration = buf.readVarInt();
-            client.execute(() -> ClientGameState.crawls.put(entityId, new ClientGameState.Crawl(facing, ClientGameState.clientTicks, duration)));
+            client.execute(() -> {
+                ClientGameState.crawls.put(entityId, new ClientGameState.Crawl(facing, ClientGameState.clientTicks, duration));
+                net.minecraft.entity.Entity emerging = client.world == null ? null : client.world.getEntityById(entityId);
+                if (emerging != null && client.player != null) {
+                    float near = (float) Math.max(0.0, 1.0 - Math.sqrt(emerging.squaredDistanceTo(client.player)) / 12.0);
+                    ClientGameState.shake = Math.max(ClientGameState.shake, near * 0.7f);
+                }
+            });
         });
 
         ClientPlayNetworking.registerGlobalReceiver(FRPackets.ALTAR_REVEAL, (client, handler, buf, sender) -> {
@@ -152,10 +166,32 @@ public final class ClientNetworking {
 
     private static void onScreenEffect(MinecraftClient client, FRPackets.ScreenEffect effect, float intensity) {
         switch (effect) {
-            case BLACKOUT_FLASH, ESCAPED, BANISHMENT -> ClientGameState.screenPulse = Math.max(ClientGameState.screenPulse, intensity);
-            case DRAGGED -> ClientGameState.dragPulse = Math.max(ClientGameState.dragPulse, intensity);
+            case BLACKOUT_FLASH -> {
+                ClientGameState.screenPulse = Math.max(ClientGameState.screenPulse, intensity);
+                ClientGameState.crackPulse = Math.max(ClientGameState.crackPulse, 0.6f * intensity);
+                ClientGameState.shake = Math.max(ClientGameState.shake, 0.8f * intensity);
+            }
+            case ESCAPED -> {
+                ClientGameState.screenPulse = Math.max(ClientGameState.screenPulse, intensity);
+                ClientGameState.crackPulse = Math.max(ClientGameState.crackPulse, 0.9f);
+            }
+            case BANISHMENT -> {
+                ClientGameState.screenPulse = Math.max(ClientGameState.screenPulse, intensity);
+                ClientGameState.shake = Math.max(ClientGameState.shake, 1.2f);
+            }
+            case DRAGGED -> {
+                ClientGameState.dragPulse = Math.max(ClientGameState.dragPulse, intensity);
+                ClientGameState.crackPulse = Math.max(ClientGameState.crackPulse, 1.0f);
+                ClientGameState.shake = Math.max(ClientGameState.shake, 1.0f);
+            }
+            case PORTAL -> {
+                ClientGameState.shake = Math.max(ClientGameState.shake, 0.5f * intensity);
+                ClientGameState.crackPulse = Math.max(ClientGameState.crackPulse, 0.3f * intensity);
+            }
             case SHATTERED, STING -> {
                 ClientGameState.screenPulse = Math.max(ClientGameState.screenPulse, intensity * 0.6f);
+                ClientGameState.crackPulse = Math.max(ClientGameState.crackPulse, intensity);
+                ClientGameState.shake = Math.max(ClientGameState.shake, 0.6f);
                 client.getSoundManager().play(PositionedSoundInstance.master(ModSounds.STING, 1.0f));
             }
         }

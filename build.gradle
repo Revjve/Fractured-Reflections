@@ -11,7 +11,7 @@ base {
 }
 
 repositories {
-    // LambDynamicLights, Simple Voice Chat (full mod) and Immersive Portals (bundled jar)
+    // LambDynamicLights, Simple Voice Chat, Immersive Portals, Mod Menu, Cloth Config
     exclusiveContent {
         forRepository {
             maven {
@@ -33,19 +33,59 @@ repositories {
     }
 }
 
+// ---------------------------------------------------------------------------------------------
+// Run configurations. `ideConfigGenerated true` makes IntelliJ IDEA pick them up automatically
+// when the Gradle project is imported (Run ▸ "Fractured Reflections - ..."), and they work from
+// the command line too: ./gradlew runClient | runClient2 | runServer
+// Every run includes Immersive Portals, LambDynamicLights and Simple Voice Chat (modLocalRuntime).
+// ---------------------------------------------------------------------------------------------
 loom {
     runs {
         client {
+            client()
+            configName = 'Fractured Reflections - Client 1 (Survivor)'
+            ideConfigGenerated true
             programArgs '--username', 'Survivor'
+            vmArgs '-Xmx3G'
+            runDir 'run'
         }
-        // A second client to test 1v1 locally: ./gradlew runClient2
         client2 {
-            inherit client
-            name 'Client 2'
+            client()
+            configName = 'Fractured Reflections - Client 2 (Fractured)'
+            ideConfigGenerated true
             programArgs '--username', 'Fractured'
+            vmArgs '-Xmx3G'
             runDir 'run2'
         }
+        server {
+            server()
+            configName = 'Fractured Reflections - Dev Server'
+            ideConfigGenerated true
+            vmArgs '-Xmx3G'
+            runDir 'run-server'
+        }
     }
+}
+
+// Dev-server conveniences, written once (never overwritten): offline mode so the dev clients can
+// join, flight allowed for The Fractured, and both dev usernames as operators so /fr works.
+// The EULA is only accepted if YOU set accept_minecraft_eula=true in gradle.properties.
+def serverRunDir = file('run-server')
+serverRunDir.mkdirs()
+def serverProps = file('run-server/server.properties')
+if (!serverProps.exists()) {
+    serverProps.text = 'online-mode=false\nallow-flight=true\nspawn-protection=0\nmotd=Fractured Reflections dev server\n'
+}
+def opsFile = file('run-server/ops.json')
+if (!opsFile.exists()) {
+    def ops = ['Survivor', 'Fractured'].collect { name ->
+        def uuid = UUID.nameUUIDFromBytes(("OfflinePlayer:" + name).getBytes('UTF-8'))
+        """  {"uuid": "${uuid}", "name": "${name}", "level": 4, "bypassesPlayerLimit": false}"""
+    }
+    opsFile.text = "[\n" + ops.join(',\n') + "\n]\n"
+}
+if (project.findProperty('accept_minecraft_eula')?.toString()?.toBoolean()) {
+    file('run-server/eula.txt').text = '# Accepted via accept_minecraft_eula=true in gradle.properties (https://aka.ms/MinecraftEULA)\neula=true\n'
 }
 
 dependencies {
@@ -58,14 +98,20 @@ dependencies {
     compileOnly "de.maxhenkel.voicechat:voicechat-api:${project.voicechat_api_version}"
     modLocalRuntime "maven.modrinth:simple-voice-chat:${project.voicechat_version}"
 
-    // LambDynamicLights — dynamic light handler API for the flashlight
+    // LambDynamicLights — dynamic light handler API for the flashlight and the Fractured's core
     modCompileOnly "maven.modrinth:lambdynamiclights:${project.lambdynamiclights_version}"
     modLocalRuntime "maven.modrinth:lambdynamiclights:${project.lambdynamiclights_version}"
 
-    // Immersive Portals — bound through reflection (see ImmersivePortalsCompat) so the
-    // mod compiles and runs with or without it, across IP API revisions.
+    // Immersive Portals — bound through reflection (see ImmersivePortalsCompat) so the mod
+    // compiles and runs with or without it, across IP API revisions. Present in every dev run.
     if (project.use_immersive_portals.toBoolean()) {
         modLocalRuntime "maven.modrinth:immersiveportals:${project.immersive_portals_version}"
+        modLocalRuntime "maven.modrinth:cloth-config:${project.cloth_config_version}"
+    }
+
+    // Mod Menu in the dev client, to reach Immersive Portals / LambDynamicLights settings
+    if (project.use_modmenu.toBoolean()) {
+        modLocalRuntime "maven.modrinth:modmenu:${project.modmenu_version}"
     }
 }
 
@@ -92,6 +138,15 @@ jar {
     from('LICENSE') {
         rename { "${it}_${project.base.archivesName.get()}" }
     }
+}
+
+// ./gradlew dist  ->  dist/fractured-reflections-<version>.jar (the file to drop into mods/)
+tasks.register('dist', Copy) {
+    group = 'build'
+    description = 'Builds the release jar and copies it to dist/.'
+    dependsOn tasks.named('remapJar')
+    from tasks.named('remapJar').flatMap { it.archiveFile }
+    into layout.projectDirectory.dir('dist')
 }
 
 publishing {

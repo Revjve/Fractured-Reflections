@@ -8,6 +8,7 @@ import com.revjve.fractured.block.LensBlock;
 import com.revjve.fractured.block.MirrorBlock;
 import com.revjve.fractured.block.PuzzleChestBlock;
 import com.revjve.fractured.block.RitualAltarBlock;
+import com.revjve.fractured.block.WardrobeBlock;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.MapColor;
@@ -52,6 +53,11 @@ public final class ModBlocks {
 
     public static final Block PUZZLE_CHEST = register("puzzle_chest", new PuzzleChestBlock(arena(MapColor.DARK_GREEN, BlockSoundGroup.WOOD)
             .nonOpaque()));
+
+    public static final Block WARDROBE = register("wardrobe", new WardrobeBlock(arena(MapColor.DARK_GREEN, BlockSoundGroup.WOOD)
+            .nonOpaque()
+            .suffocates((state, world, pos) -> false)
+            .blockVision((state, world, pos) -> false)));
 
     private ModBlocks() {}
 

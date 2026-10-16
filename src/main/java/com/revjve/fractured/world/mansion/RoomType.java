@@ -9,6 +9,9 @@ public enum RoomType {
     BANQUET_HALL(false),
     OBSERVATORY(false),
     CONSERVATORY(false),
+    CHAPEL(false),
+    BALLROOM(false),
+    BEDCHAMBER(false),
     STAIRWELL(false);
 
     /** Underground-feeling rooms get no exterior windows. */

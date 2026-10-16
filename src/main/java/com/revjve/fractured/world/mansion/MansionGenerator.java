@@ -125,13 +125,16 @@ public final class MansionGenerator {
         require(mid, RoomType.GRAND_LIBRARY, 2);
         require(mid, RoomType.CONSERVATORY, 1);
         require(top, RoomType.OBSERVATORY, 2);
+        require(0, RoomType.BALLROOM, 1);
+        require(mid, RoomType.CHAPEL, 1);
+        require(Math.max(mid, top), RoomType.BEDCHAMBER, 1);
 
         for (int f = 0; f <= top; f++) {
             RoomType[] pool = f == 0
-                    ? new RoomType[]{RoomType.CRYPTS, RoomType.BANQUET_HALL, RoomType.GALLERY, RoomType.GALLERY}
+                    ? new RoomType[]{RoomType.CRYPTS, RoomType.BANQUET_HALL, RoomType.GALLERY, RoomType.GALLERY, RoomType.BALLROOM}
                     : f == top
-                    ? new RoomType[]{RoomType.OBSERVATORY, RoomType.CONSERVATORY, RoomType.GRAND_LIBRARY, RoomType.GALLERY}
-                    : new RoomType[]{RoomType.GRAND_LIBRARY, RoomType.CONSERVATORY, RoomType.GALLERY, RoomType.BANQUET_HALL};
+                    ? new RoomType[]{RoomType.OBSERVATORY, RoomType.CONSERVATORY, RoomType.GRAND_LIBRARY, RoomType.GALLERY, RoomType.BEDCHAMBER, RoomType.CHAPEL}
+                    : new RoomType[]{RoomType.GRAND_LIBRARY, RoomType.CONSERVATORY, RoomType.GALLERY, RoomType.BANQUET_HALL, RoomType.BEDCHAMBER, RoomType.CHAPEL};
             for (int i = 0; i < w; i++) {
                 for (int j = 0; j < d; j++) {
                     if (r[f][i][j] == null) r[f][i][j] = pool[random.nextInt(pool.length)];
@@ -368,7 +371,7 @@ public final class MansionGenerator {
     private void placeMirrors() {
         for (RoomContext room : allRooms()) {
             if (room.type == RoomType.STAIRWELL) continue;
-            int count = 1 + (random.nextFloat() < 0.45f ? 1 : 0);
+            int count = room.type == RoomType.BALLROOM ? 3 : 1 + (random.nextFloat() < 0.45f ? 1 : 0);
             for (int n = 0; n < count; n++) {
                 RoomContext.LocalSpot spot = room.takeSpot();
                 if (spot == null) break;

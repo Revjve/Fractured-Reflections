@@ -15,6 +15,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class RoleRegistry {
     private static final Set<UUID> SERVER = ConcurrentHashMap.newKeySet();
     private static final Set<UUID> CLIENT = ConcurrentHashMap.newKeySet();
+    private static final Set<UUID> SERVER_HIDING = ConcurrentHashMap.newKeySet();
+    private static final Set<UUID> CLIENT_HIDING = ConcurrentHashMap.newKeySet();
 
     private RoleRegistry() {}
 
@@ -34,5 +36,20 @@ public final class RoleRegistry {
     public static void setClient(Collection<UUID> fractured) {
         CLIENT.clear();
         CLIENT.addAll(fractured);
+    }
+
+    /** True while a survivor is hidden inside a wardrobe (no collision with it on either side). */
+    public static boolean isHiding(Entity entity) {
+        return (entity.getWorld().isClient ? CLIENT_HIDING : SERVER_HIDING).contains(entity.getUuid());
+    }
+
+    public static void setServerHiding(Collection<UUID> hiding) {
+        SERVER_HIDING.clear();
+        SERVER_HIDING.addAll(hiding);
+    }
+
+    public static void setClientHiding(Collection<UUID> hiding) {
+        CLIENT_HIDING.clear();
+        CLIENT_HIDING.addAll(hiding);
     }
 }

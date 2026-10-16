@@ -1,6 +1,7 @@
 package com.revjve.fractured.compat.lambdynlights;
 
 import com.revjve.fractured.client.ClientGameState;
+import com.revjve.fractured.game.RoleRegistry;
 import com.revjve.fractured.item.FlashlightItem;
 import dev.lambdaurora.lambdynlights.api.DynamicLightHandler;
 import dev.lambdaurora.lambdynlights.api.DynamicLightHandlers;
@@ -21,7 +22,13 @@ public final class FRDynamicLights implements DynamicLightsInitializer {
     }
 
     private static int luminance(PlayerEntity player) {
-        if (!FlashlightItem.isLitInHand(player)) return 0;
-        return Math.round(15 * ClientGameState.flashlightIntensity(player));
+        int light = 0;
+        if (FlashlightItem.isLitInHand(player)) light = Math.round(15 * ClientGameState.flashlightIntensity(player));
+        // the undisguised Fractured's beating core casts a dim, pulsing glow — a tell in dark corridors
+        if (RoleRegistry.isFracturedClient(player.getUuid()) && !ClientGameState.disguises.containsKey(player.getUuid())) {
+            float beat = (float) Math.pow(Math.sin(player.age * 0.21) * 0.5 + 0.5, 4);
+            light = Math.max(light, 3 + Math.round(beat * 3));
+        }
+        return light;
     }
 }

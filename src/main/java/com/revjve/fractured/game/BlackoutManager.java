@@ -6,6 +6,9 @@ import com.revjve.fractured.registry.ModTags;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.RedstoneTorchBlock;
+import net.minecraft.particle.BlockStateParticleEffect;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.state.property.Properties;
@@ -23,6 +26,8 @@ import java.util.List;
  */
 public final class BlackoutManager {
     private record Shattered(ServerWorld world, BlockPos pos, BlockState original, BlockState replaced, long restoreAt) {}
+
+    private static final BlockStateParticleEffect SHARDS = new BlockStateParticleEffect(ParticleTypes.BLOCK, Blocks.GLASS.getDefaultState());
 
     private final List<Shattered> shattered = new ArrayList<>();
 
@@ -42,7 +47,7 @@ public final class BlackoutManager {
                     BlockState state = world.getBlockState(p);
                     if (!state.isIn(ModTags.SHATTERABLE_LIGHTS)) continue;
                     BlockState replaced;
-                    if (state.contains(Properties.LIT)) {
+                    if (state.contains(Properties.LIT) && !(state.getBlock() instanceof RedstoneTorchBlock)) {
                         if (!state.get(Properties.LIT)) continue;
                         replaced = state.with(Properties.LIT, false);
                     } else {
@@ -51,6 +56,8 @@ public final class BlackoutManager {
                     }
                     BlockPos immutable = p.toImmutable();
                     world.setBlockState(immutable, replaced, Block.NOTIFY_ALL);
+                    world.spawnParticles(SHARDS, p.getX() + 0.5, p.getY() + 0.5, p.getZ() + 0.5, 14, 0.2, 0.2, 0.2, 0.18);
+                    world.spawnParticles(ParticleTypes.LARGE_SMOKE, p.getX() + 0.5, p.getY() + 0.5, p.getZ() + 0.5, 3, 0.1, 0.1, 0.1, 0.02);
                     shattered.add(new Shattered(world, immutable, state, replaced, restoreAt));
                     count++;
                 }

@@ -24,7 +24,7 @@ public final class FRPackets {
 
     /** One-shot full-screen effects driven by the composite post shader and HUD. */
     public enum ScreenEffect {
-        BLACKOUT_FLASH, DRAGGED, ESCAPED, STING, BANISHMENT, SHATTERED;
+        BLACKOUT_FLASH, DRAGGED, ESCAPED, STING, BANISHMENT, SHATTERED, PORTAL;
 
         public static ScreenEffect byOrdinal(int ordinal) {
             ScreenEffect[] values = values();

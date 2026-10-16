@@ -55,6 +55,12 @@ public final class FRConfig {
     public int batteryRechargeTicks = 20 * 90;
     public int proximityChatRange = 24;
 
+    public int wardrobeMaxSeconds = 40;
+    public float wardrobeSanityRegenPerSecond = 0.5f;
+    public float tonicSanity = 35f;
+    /** Survivors below this fraction of sanity glow red through walls for The Fractured ("Glass Sense"). */
+    public float glassSenseThreshold = 0.25f;
+
     // --- The Fractured -------------------------------------------------------------------
     public int portalCooldownSeconds = 40;
     public int portalDurationSeconds = 20;

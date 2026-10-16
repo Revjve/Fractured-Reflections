@@ -1,11 +1,13 @@
 package com.revjve.fractured.client;
 
 import com.revjve.fractured.client.hud.FRHud;
+import com.revjve.fractured.client.render.EscapeMirrorRenderer;
 import com.revjve.fractured.client.render.FRPostEffects;
 import com.revjve.fractured.client.render.GlassEchoRenderer;
 import com.revjve.fractured.client.render.GlassMoteParticle;
 import com.revjve.fractured.client.render.MirrorBlockEntityRenderer;
 import com.revjve.fractured.client.render.MirrorDimensionEffects;
+import com.revjve.fractured.client.render.RitualAltarRenderer;
 import com.revjve.fractured.registry.ModBlockEntities;
 import com.revjve.fractured.registry.ModBlocks;
 import com.revjve.fractured.registry.ModDimensions;
@@ -33,8 +35,11 @@ public final class FracturedReflectionsClient implements ClientModInitializer {
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.ESCAPE_MIRROR, RenderLayer.getTranslucent());
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.REFRACTION_LENS, RenderLayer.getTranslucent());
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.RITUAL_ALTAR, RenderLayer.getCutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.WARDROBE, RenderLayer.getCutout());
 
         BlockEntityRendererFactories.register(ModBlockEntities.MIRROR, MirrorBlockEntityRenderer::new);
+        BlockEntityRendererFactories.register(ModBlockEntities.RITUAL_ALTAR, RitualAltarRenderer::new);
+        BlockEntityRendererFactories.register(ModBlockEntities.ESCAPE_MIRROR, EscapeMirrorRenderer::new);
         EntityRendererRegistry.register(ModEntities.GLASS_ECHO, GlassEchoRenderer::new);
         ParticleFactoryRegistry.getInstance().register(ModParticles.GLASS_MOTE, GlassMoteParticle.Factory::new);
         DimensionRenderingRegistry.registerDimensionEffects(ModDimensions.MIRROR_ID, new MirrorDimensionEffects());
@@ -56,6 +61,9 @@ public final class FracturedReflectionsClient implements ClientModInitializer {
         if (ClientGameState.phaseTicks > 0) ClientGameState.phaseTicks--;
         ClientGameState.screenPulse = Math.max(0f, ClientGameState.screenPulse - 0.04f);
         ClientGameState.dragPulse = Math.max(0f, ClientGameState.dragPulse - 0.02f);
+        ClientGameState.crackPulse = Math.max(0f, ClientGameState.crackPulse - 0.015f);
+        ClientGameState.shake = Math.max(0f, ClientGameState.shake * 0.88f - 0.005f);
+        ClientGameState.heartbeatFlash = Math.max(0f, ClientGameState.heartbeatFlash - 0.06f);
         ClientGameState.reveals.removeIf(r -> r.expiresAt() < ClientGameState.clientTicks);
         ClientGameState.crawls.values().removeIf(c -> ClientGameState.clientTicks - c.startedAt() > c.duration());
         for (int n = 0; n < ClientGameState.cooldowns.length; n++) {
@@ -65,6 +73,7 @@ public final class FracturedReflectionsClient implements ClientModInitializer {
         FRKeybinds.tick(client);
         ClientGameState.updateProximity(client);
         HallucinationController.tick(client);
+        FracturedEffects.tick(client);
         MirrorAtmosphere.tick(client);
         FRPostEffects.tick(client);
     }

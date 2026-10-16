@@ -8,6 +8,12 @@ import com.revjve.fractured.registry.ModDimensions;
 import com.revjve.fractured.registry.ModSounds;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.particle.BlockStateParticleEffect;
+import net.minecraft.particle.ParticleTypes;
+import net.minecraft.server.network.ServerPlayerEntity;
+import com.revjve.fractured.network.FRPackets;
+import com.revjve.fractured.network.ServerNetworking;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
@@ -58,7 +64,29 @@ public final class PortalManager {
         open.add(new OpenPortal(world, bottom, height, closesAt, entities));
         world.playSound(null, bottom, ModSounds.PORTAL_OPEN, SoundCategory.BLOCKS, 2.5f, 1.0f);
         if (twin != null) twin.playSound(null, bottom, ModSounds.PORTAL_OPEN, SoundCategory.BLOCKS, 2.5f, 0.8f);
+        Vec3d face = Vec3d.ofBottomCenter(bottom).add(0, height / 2.0, 0);
+        for (ServerWorld w : twin == null ? new ServerWorld[]{world} : new ServerWorld[]{world, twin}) {
+            shockwave(w, face, facing);
+            for (ServerPlayerEntity p : w.getPlayers()) {
+                double d = p.getPos().distanceTo(face);
+                if (d < 20) ServerNetworking.sendScreenEffect(p, FRPackets.ScreenEffect.PORTAL, (float) (1.0 - d / 20.0));
+            }
+        }
         return true;
+    }
+
+    /** An expanding ring of glass and rift sparks blown out of the mirror face. */
+    private static void shockwave(ServerWorld world, Vec3d center, Direction facing) {
+        Direction side = facing.rotateYClockwise();
+        for (int n = 0; n < 40; n++) {
+            double a = n * Math.PI * 2 / 40;
+            double dx = side.getOffsetX() * Math.cos(a), dz = side.getOffsetZ() * Math.cos(a), dy = Math.sin(a);
+            world.spawnParticles(ParticleTypes.REVERSE_PORTAL, center.x, center.y, center.z, 0, dx, dy, dz, 0.35);
+            world.spawnParticles(ParticleTypes.END_ROD, center.x, center.y, center.z, 0,
+                    dx + facing.getOffsetX() * 0.6, dy, dz + facing.getOffsetZ() * 0.6, 0.18);
+        }
+        world.spawnParticles(new BlockStateParticleEffect(ParticleTypes.BLOCK, Blocks.GLASS.getDefaultState()),
+                center.x + facing.getOffsetX() * 0.3, center.y, center.z + facing.getOffsetZ() * 0.3, 40, 0.3, 0.6, 0.3, 0.2);
     }
 
     private static boolean isMirror(ServerWorld world, BlockPos pos, Direction facing) {

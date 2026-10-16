@@ -46,6 +46,7 @@ public final class HallucinationController {
             lastBeat = now;
             float volume = proximity > 0 ? 0.35f + 0.65f * proximity : 0.3f;
             client.getSoundManager().play(PositionedSoundInstance.master(ModSounds.HEARTBEAT, 1.0f, volume));
+            ClientGameState.heartbeatFlash = Math.max(ClientGameState.heartbeatFlash, proximity * 0.45f);
         }
 
         if (sanity >= 0.6f) {

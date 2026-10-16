@@ -5,6 +5,7 @@ import com.revjve.fractured.client.FRKeybinds;
 import com.revjve.fractured.game.Ability;
 import com.revjve.fractured.game.MatchPhase;
 import com.revjve.fractured.game.Role;
+import com.revjve.fractured.game.RoleRegistry;
 import com.revjve.fractured.item.FlashlightItem;
 import com.revjve.fractured.registry.ModItems;
 import net.fabricmc.api.EnvType;
@@ -46,6 +47,7 @@ public final class FRHud {
         int width = ctx.getScaledWindowWidth();
         int height = ctx.getScaledWindowHeight();
 
+        if (RoleRegistry.isHiding(client.player)) drawHiding(ctx, font, width, height);
         drawTimer(ctx, font, width);
         Role role = ClientGameState.localRole();
         if (ClientGameState.phase == MatchPhase.GENERATING) return;
@@ -60,6 +62,21 @@ public final class FRHud {
             ctx.drawCenteredTextWithShadow(font, t, width / 2, height - 60, 0xFFFFFF);
             drawTaskList(ctx, font, client.player, width);
         }
+    }
+
+    /** Peeking out through the slats of a wardrobe door: dark louvres with thin gaps of light. */
+    private static void drawHiding(DrawContext ctx, TextRenderer font, int width, int height) {
+        int slat = Math.max(8, height / 14);
+        int gap = Math.max(2, slat / 4);
+        int drift = (int) (Math.sin(ClientGameState.clientTicks * 0.05) * 1.5);
+        for (int y = -slat + drift; y < height; y += slat + gap) {
+            ctx.fill(0, y, width, y + slat, 0xEE080404);
+            ctx.fill(0, y + slat - 1, width, y + slat, 0xFF1A0D08);
+        }
+        ctx.fill(0, 0, width / 8, height, 0x99000000);
+        ctx.fill(width - width / 8, 0, width, height, 0x99000000);
+        Text t = Text.translatable("hud.fractured_reflections.hiding").formatted(Formatting.GRAY, Formatting.ITALIC);
+        ctx.drawCenteredTextWithShadow(font, t, width / 2, height - 48, 0xFFFFFF);
     }
 
     private static void drawTimer(DrawContext ctx, TextRenderer font, int width) {

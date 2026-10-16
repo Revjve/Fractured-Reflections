@@ -1,5 +1,6 @@
 package com.revjve.fractured.world.mansion;
 
+import com.revjve.fractured.world.MirrorPalette;
 import com.revjve.fractured.world.MirrorSync;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -133,7 +134,7 @@ public final class BuildJob {
             BuildPlan.Placement p = list.get(index++);
             int flags = phases[phase].flags;
             if (p.target() != BuildPlan.Target.MIRROR) main.setBlockState(p.pos(), p.state(), flags);
-            if (p.target() != BuildPlan.Target.MAIN) mirror.setBlockState(p.pos(), p.state(), flags);
+            if (p.target() != BuildPlan.Target.MAIN) mirror.setBlockState(p.pos(), MirrorPalette.toMirror(p.state()), flags);
             budget--;
             placed++;
         }

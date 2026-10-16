@@ -6,10 +6,10 @@ import net.minecraft.client.render.DimensionEffects;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 
-/** Sky/fog for the Mirror Dimension: no sky, no clouds, thick pale-cold fog. */
+/** Sky/fog for the Mirror Dimension: no sky, no clouds, thick blood-black fog. */
 @Environment(EnvType.CLIENT)
 public class MirrorDimensionEffects extends DimensionEffects {
-    private static final Vec3d FOG = new Vec3d(0.20, 0.24, 0.30);
+    private static final Vec3d FOG = new Vec3d(0.10, 0.004, 0.012);
 
     public MirrorDimensionEffects() {
         super(Float.NaN, false, SkyType.NONE, false, true);

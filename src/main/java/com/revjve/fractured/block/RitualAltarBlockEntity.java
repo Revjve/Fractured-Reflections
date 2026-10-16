@@ -18,7 +18,9 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.nbt.NbtList;
-import net.minecraft.particle.DustParticleEffect;
+import net.minecraft.network.listener.ClientPlayPacketListener;
+import net.minecraft.network.packet.Packet;
+import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -26,13 +28,11 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
-import org.joml.Vector3f;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -47,9 +47,6 @@ import java.util.Set;
  * </ol>
  */
 public class RitualAltarBlockEntity extends BlockEntity {
-    private static final DustParticleEffect BEAM = new DustParticleEffect(new Vector3f(0.55f, 0.85f, 1.0f), 1.1f);
-    private static final int MAX_BEAM_STEPS = 40;
-
     private int index;
     private final List<BlockPos> emitters = new ArrayList<>();
     private final List<BlockPos> focals = new ArrayList<>();
@@ -60,6 +57,8 @@ public class RitualAltarBlockEntity extends BlockEntity {
     private boolean completed;
     private int cleanseTicks;
     private int age;
+    private float clientRadius = 3.5f;
+    private int syncedTotalTicks;
 
     public RitualAltarBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.RITUAL_ALTAR, pos, state);
@@ -78,7 +77,7 @@ public class RitualAltarBlockEntity extends BlockEntity {
         this.cleansingStarted = false;
         this.completed = false;
         this.cleanseTicks = 0;
-        markDirty();
+        sync();
     }
 
     public int getIndex() { return index; }
@@ -88,7 +87,8 @@ public class RitualAltarBlockEntity extends BlockEntity {
     public boolean isCompleted() { return completed; }
 
     public float getCleanseProgress() {
-        return MathHelper.clamp(cleanseTicks / (float) cleanseTotalTicks(), 0f, 1f);
+        int total = world != null && world.isClient && syncedTotalTicks > 0 ? syncedTotalTicks : cleanseTotalTicks();
+        return MathHelper.clamp(cleanseTicks / (float) total, 0f, 1f);
     }
 
     private static int cleanseTotalTicks() {
@@ -118,28 +118,10 @@ public class RitualAltarBlockEntity extends BlockEntity {
 
     private void traceBeams(ServerWorld world) {
         if (emitters.isEmpty() || focals.isEmpty()) return;
-        Set<BlockPos> litLenses = new HashSet<>();
-        Set<BlockPos> litFocals = new HashSet<>();
-        for (BlockPos emitterPos : emitters) {
-            BlockState emitter = world.getBlockState(emitterPos);
-            if (!emitter.isOf(ModBlocks.LUMEN_PRISM)) continue;
-            Direction dir = emitter.get(BeamEmitterBlock.FACING);
-            BlockPos cursor = emitterPos.offset(dir);
-            for (int step = 0; step < MAX_BEAM_STEPS; step++) {
-                BlockState st = world.getBlockState(cursor);
-                if (st.isOf(ModBlocks.REFRACTION_LENS)) {
-                    if (!litLenses.add(cursor.toImmutable())) break; // beam loop
-                    dir = st.get(LensBlock.FACING);
-                } else if (st.isOf(ModBlocks.FOCAL_POINT)) {
-                    litFocals.add(cursor.toImmutable());
-                    break;
-                } else if (!st.isAir() && st.isOpaqueFullCube(world, cursor)) {
-                    break;
-                }
-                world.spawnParticles(BEAM, cursor.getX() + 0.5, cursor.getY() + 0.5, cursor.getZ() + 0.5, 2, 0.15, 0.05, 0.15, 0);
-                cursor = cursor.offset(dir);
-            }
-        }
+        // the beams themselves are drawn client-side by RitualAltarRenderer from the same trace
+        BeamTracer.Result trace = BeamTracer.trace(world, emitters);
+        Set<BlockPos> litLenses = trace.litLenses();
+        Set<BlockPos> litFocals = trace.litFocals();
         for (BlockPos lensPos : lenses) {
             BlockState st = world.getBlockState(lensPos);
             if (st.isOf(ModBlocks.REFRACTION_LENS)) {
@@ -158,6 +140,9 @@ public class RitualAltarBlockEntity extends BlockEntity {
             refracted = true;
             setStage(world, 1);
             world.playSound(null, pos, ModSounds.REFRACTION_LIT, SoundCategory.BLOCKS, 2.5f, 1.0f);
+            for (BlockPos focal : focals) {
+                world.spawnParticles(ParticleTypes.END_ROD, focal.getX() + 0.5, focal.getY() + 1.0, focal.getZ() + 0.5, 30, 0.2, 0.6, 0.2, 0.08);
+            }
             broadcast(world, Text.translatable("message.fractured_reflections.altar_refracted", index + 1).formatted(Formatting.AQUA));
             MatchManager.get().onRitualProgress();
         }
@@ -191,7 +176,7 @@ public class RitualAltarBlockEntity extends BlockEntity {
             }
         } else if (!cleansingStarted) {
             cleansingStarted = true;
-            markDirty();
+            sync();
             world.playSound(null, pos, ModSounds.CLEANSING_CUE, SoundCategory.BLOCKS, 6.0f, 0.8f);
             broadcast(world, Text.translatable("message.fractured_reflections.cleansing_started", index + 1).formatted(Formatting.GOLD));
             MatchManager.get().onRitualProgress();
@@ -229,7 +214,7 @@ public class RitualAltarBlockEntity extends BlockEntity {
         }
 
         if (age % 5 == 0) drawRing(world, inside.isEmpty() ? ParticleTypes.ENCHANT : ParticleTypes.END_ROD, 24);
-        if (age % 10 == 0) markDirty();
+        if (age % 10 == 0) sync();
 
         if (cleanseTicks >= cleanseTotalTicks()) {
             completed = true;
@@ -249,12 +234,39 @@ public class RitualAltarBlockEntity extends BlockEntity {
         }
     }
 
+    /** Pushes the block entity to watching clients (the renderer needs beams, flags and progress). */
+    private void sync() {
+        markDirty();
+        if (world != null && !world.isClient) world.updateListeners(pos, getCachedState(), getCachedState(), Block.NOTIFY_LISTENERS);
+    }
+
+    @Nullable
+    @Override
+    public Packet<ClientPlayPacketListener> toUpdatePacket() {
+        return BlockEntityUpdateS2CPacket.create(this);
+    }
+
+    @Override
+    public NbtCompound toInitialChunkDataNbt() {
+        return createNbt();
+    }
+
+    public List<BlockPos> getEmitters() { return emitters; }
+    public List<BlockPos> getFocals() { return focals; }
+    public int getAge() { return age; }
+    public float getRingRadius() { return clientRadius; }
+
+    /** Client-side tick: advances the animation clock used by the renderer. */
+    public static void clientTick(World world, BlockPos pos, BlockState state, RitualAltarBlockEntity altar) {
+        altar.age++;
+    }
+
     private void setStage(ServerWorld world, int stage) {
         BlockState state = world.getBlockState(pos);
         if (state.isOf(ModBlocks.RITUAL_ALTAR) && state.get(RitualAltarBlock.STAGE) != stage) {
             world.setBlockState(pos, state.with(RitualAltarBlock.STAGE, stage), Block.NOTIFY_ALL);
         }
-        markDirty();
+        sync();
     }
 
     private static void broadcast(ServerWorld world, Text text) {
@@ -275,6 +287,8 @@ public class RitualAltarBlockEntity extends BlockEntity {
         nbt.putBoolean("CleansingStarted", cleansingStarted);
         nbt.putBoolean("Completed", completed);
         nbt.putInt("CleanseTicks", cleanseTicks);
+        nbt.putFloat("Radius", (float) FRConfig.get().cleansingRadius);
+        nbt.putInt("TotalTicks", cleanseTotalTicks());
     }
 
     @Override
@@ -289,6 +303,8 @@ public class RitualAltarBlockEntity extends BlockEntity {
         cleansingStarted = nbt.getBoolean("CleansingStarted");
         completed = nbt.getBoolean("Completed");
         cleanseTicks = nbt.getInt("CleanseTicks");
+        if (nbt.contains("Radius")) clientRadius = nbt.getFloat("Radius");
+        if (nbt.contains("TotalTicks")) syncedTotalTicks = nbt.getInt("TotalTicks");
     }
 
     private static NbtList writePositions(List<BlockPos> positions) {

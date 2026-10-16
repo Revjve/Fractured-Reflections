@@ -12,6 +12,8 @@
     "minecraft:jack_o_lantern",
     "minecraft:campfire",
     "minecraft:soul_campfire",
-    "#minecraft:candles"
+    "#minecraft:candles",
+    "minecraft:redstone_torch",
+    "minecraft:redstone_wall_torch"
   ]
 }

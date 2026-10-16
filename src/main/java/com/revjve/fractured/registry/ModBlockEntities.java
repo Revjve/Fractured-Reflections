@@ -1,6 +1,7 @@
 package com.revjve.fractured.registry;
 
 import com.revjve.fractured.FracturedReflections;
+import com.revjve.fractured.block.EscapeMirrorBlockEntity;
 import com.revjve.fractured.block.MirrorBlockEntity;
 import com.revjve.fractured.block.PuzzleChestBlockEntity;
 import com.revjve.fractured.block.RitualAltarBlockEntity;
@@ -21,6 +22,10 @@ public final class ModBlockEntities {
     public static final BlockEntityType<PuzzleChestBlockEntity> PUZZLE_CHEST = Registry.register(Registries.BLOCK_ENTITY_TYPE,
             FracturedReflections.id("puzzle_chest"),
             FabricBlockEntityTypeBuilder.create(PuzzleChestBlockEntity::new, ModBlocks.PUZZLE_CHEST).build());
+
+    public static final BlockEntityType<EscapeMirrorBlockEntity> ESCAPE_MIRROR = Registry.register(Registries.BLOCK_ENTITY_TYPE,
+            FracturedReflections.id("glowing_cracked_mirror"),
+            FabricBlockEntityTypeBuilder.create(EscapeMirrorBlockEntity::new, ModBlocks.ESCAPE_MIRROR).build());
 
     private ModBlockEntities() {}
 

@@ -10,7 +10,8 @@ import net.minecraft.util.math.BlockPos;
  * Instant Main World ⇄ Mirror Dimension block synchronisation. Every successful
  * {@code World#setBlockState} in one arena world (block broken, placed, door opened, candle
  * extinguished, mirror turned into a portal...) is replayed at the same position in the twin
- * world on the same tick. Driven by {@code WorldMixin}.
+ * world on the same tick, translated through {@link MirrorPalette} so the Mirror Dimension keeps
+ * its crimson-and-black materials. Driven by {@code WorldMixin}.
  *
  * <p>Re-entrancy is guarded so the replayed write (and any neighbour cascade it triggers in the
  * twin) is not echoed back. Blocks tagged {@code fractured_reflections:unsynced} are skipped.
@@ -40,8 +41,9 @@ public final class MirrorSync {
         if (state.isIn(ModTags.UNSYNCED)) return;
         ServerWorld twin = ModDimensions.twin(world);
         if (twin == null || twin.isOutOfHeightLimit(pos)) return;
+        BlockState translated = ModDimensions.isMirror(world) ? MirrorPalette.toMain(state) : MirrorPalette.toMirror(state);
         BlockState current = twin.getBlockState(pos);
-        if (current == state || current.isIn(ModTags.UNSYNCED)) return;
-        runUnsynced(() -> twin.setBlockState(pos, state, flags));
+        if (current == translated || current.isIn(ModTags.UNSYNCED)) return;
+        runUnsynced(() -> twin.setBlockState(pos, translated, flags));
     }
 }

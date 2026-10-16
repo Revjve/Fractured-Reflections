@@ -87,6 +87,8 @@ public class RitualAltarBlock extends BlockWithEntity {
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
-        return world.isClient ? null : checkType(type, ModBlockEntities.RITUAL_ALTAR, RitualAltarBlockEntity::serverTick);
+        return world.isClient
+                ? checkType(type, ModBlockEntities.RITUAL_ALTAR, RitualAltarBlockEntity::clientTick)
+                : checkType(type, ModBlockEntities.RITUAL_ALTAR, RitualAltarBlockEntity::serverTick);
     }
 }

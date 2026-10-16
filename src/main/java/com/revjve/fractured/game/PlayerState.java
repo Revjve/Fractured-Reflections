@@ -34,6 +34,7 @@ public final class PlayerState {
     public float sentSanity = -1;
     public boolean sentTrapped;
     public boolean sentExhausted;
+    public boolean panicking;
 
     public PlayerState(UUID uuid, String name, Role role) {
         this.uuid = uuid;
